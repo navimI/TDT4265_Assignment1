@@ -1,4 +1,7 @@
+##TASK 2a
+import array
 import numpy as np
+import math
 import utils
 np.random.seed(1)
 
@@ -12,8 +15,17 @@ def pre_process_images(X: np.ndarray):
     """
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
-    # TODO implement this function (Task 2a)
-    return X
+    X=X/127.5 - 1
+    bSize=X.shape[0]
+    #print(bSize)
+    #X=np.reshape(X, (bSize, 785), order='C')
+    Y=np.concatenate((X,np.zeros((bSize,1))), axis=1)
+    for value in range(bSize):
+      Y[value][784]=1
+    #print (Y[1][151])
+    #print ("--------------------")
+    #print (Y.shape[1])
+    return Y
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
@@ -27,16 +39,21 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray) -> float:
     # TODO implement this function (Task 2a)
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    return 0
+    bSize = targets.shape[0]
+    tot=0
+    for entry in range(bSize):
+      tot+=(targets[entry]*math.log(outputs[entry]) + (1-targets[entry])*math.log(1 - outputs[entry]))*-1
+    return tot/bSize
 
 
 class BinaryModel:
 
     def __init__(self):
         # Define number of input nodes
-        self.I = None
+        #self.I = None
+        self.I = 785
         self.w = np.zeros((self.I, 1))
-        self.grad = None
+        self.grad = 0
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -46,7 +63,13 @@ class BinaryModel:
             y: output of model with shape [batch size, 1]
         """
         # TODO implement this function (Task 2a)
-        return None
+        bSize=X.shape[0]
+        nPixel=X.shape[1]
+        wtx=X@self.w
+        #wt=self.w.transpose()
+        #wtx=np.dot(self.w.transpose(), X)
+        y=1/(1+np.exp(-wtx))
+        return y
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -62,6 +85,14 @@ class BinaryModel:
         self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
+        bSize=targets.shape[0]
+        #bSize=X.shape[0]
+        #nPixel=X.shape[1]
+        #for enume in range(bSize):
+        #    for pixel in range(nPixel):
+        #        X[enume][pixel]=-1*(targets[enume][0] - outputs[enume][0])*X[enume][pixel]
+        self.grad = -1*X.transpose().dot(targets - outputs)/bSize #Maybe to recheck
+        
 
     def zero_grad(self) -> None:
         self.grad = None
@@ -111,9 +142,7 @@ def main():
     # Simple test for forward pass. Note that this does not cover all errors!
     model = BinaryModel()
     logits = model.forward(X_train)
-    np.testing.assert_almost_equal(
-        logits.mean(), .5,
-        err_msg="Since the weights are all 0's, the sigmoid activation should be 0.5")
+    np.testing.assert_almost_equal(logits.mean(), .5, err_msg="Since the weights are all 0's, the sigmoid activation should be 0.5")
 
     # Gradient approximation check for 100 images
     X_train = X_train[:100]
@@ -125,3 +154,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+## NOTES
+#https://mlnotebook.github.io/post/nn-in-python/#forwardpass
+#https://numpy.org/doc/stable/reference/generated/numpy.squeeze.html
+#https://www.geeksforgeeks.org/ml-logistic-regression-using-python/
