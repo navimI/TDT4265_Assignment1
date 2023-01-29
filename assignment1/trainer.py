@@ -1,3 +1,4 @@
+##Trainer.py
 import numpy as np
 import utils
 
@@ -90,5 +91,9 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+                    if (global_step>10 and val_history["loss"][global_step-10] <= val_loss):
+                      print("Epoch ", epoch)
+                      epoch=num_epochs
+                      return train_history, val_history
                 global_step += 1
         return train_history, val_history
