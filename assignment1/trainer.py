@@ -90,6 +90,7 @@ class BaseTrainer:
                     val_history["accuracy"][global_step] = accuracy_val
 
                     # TODO (Task 2d): Implement early stopping here.
+                    print ("Counter ", counter)
                     counter=0
                     last=global_step-10
                     if (val_history["loss"][global_step]<best):
