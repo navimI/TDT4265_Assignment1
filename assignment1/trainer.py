@@ -73,6 +73,7 @@ class BaseTrainer:
         )
 
         global_step = 0
+        counter = 0
         best = 200000
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
@@ -90,7 +91,6 @@ class BaseTrainer:
                     val_history["accuracy"][global_step] = accuracy_val
 
                     # TODO (Task 2d): Implement early stopping here.
-                    counter=0
                     last=global_step-10
                     if (val_history["loss"][global_step]<best):
                         best=val_history["loss"][global_step]
