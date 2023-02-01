@@ -97,7 +97,9 @@ class BaseTrainer:
                             counter+=1
                         last+=1
                     if (counter>=9):
+                        print ("Bumped out at epoch ", epoch)
                         return train_history, val_history
 
                 global_step += 1
+        print ("Finished ", num_epochs)
         return train_history, val_history
