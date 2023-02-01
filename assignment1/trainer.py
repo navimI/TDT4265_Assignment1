@@ -91,13 +91,13 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     counter=0
-                    last=global_step
-                    #while (last > global_step-10 and last>0):
-                    #    if (val_history["loss"][global_step-1]>val_history["loss"][last-1]):
-                    #        counter+=1
-                    #    last-=1
-                    #if (counter>=9):
-                    #    return train_history, val_history
+                    last=global_step-10
+                    while (last < global_step and last>0):
+                        if (val_history["loss"][global_step]>val_history["loss"][last]):
+                            counter+=1
+                        last+=1
+                    if (counter>=9):
+                        return train_history, val_history
 
                 global_step += 1
         return train_history, val_history
