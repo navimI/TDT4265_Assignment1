@@ -93,6 +93,7 @@ class BaseTrainer:
                     counter=0
                     last=global_step-10
                     while (last < global_step and last>0):
+                        print (global_step," ",last)
                         if (val_history["loss"][global_step]>val_history["loss"][last]):
                             counter+=1
                         last+=1
