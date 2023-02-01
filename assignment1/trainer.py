@@ -90,7 +90,6 @@ class BaseTrainer:
                     val_history["accuracy"][global_step] = accuracy_val
 
                     # TODO (Task 2d): Implement early stopping here.
-                    print ("Counter ", counter)
                     counter=0
                     last=global_step-10
                     if (val_history["loss"][global_step]<best):
@@ -111,7 +110,7 @@ class BaseTrainer:
                     #if (counter>=9):
                     #    print ("Bumped out at epoch ", epoch)
                     #    return train_history, val_history
-
+                     print ("Counter ", counter)
                 global_step += 1
         print ("Finished ", num_epochs)
         return train_history, val_history
