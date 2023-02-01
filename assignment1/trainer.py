@@ -73,7 +73,7 @@ class BaseTrainer:
         )
 
         global_step = 0
-        lowest_loss = np.inf
+        best = 200000
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
                 self.X_train, self.Y_train, self.batch_size, shuffle=self.shuffle_dataset)
@@ -92,15 +92,24 @@ class BaseTrainer:
                     # TODO (Task 2d): Implement early stopping here.
                     counter=0
                     last=global_step-10
-                    while (last < global_step and last>0):
-                        print (global_step," ",last)
-                        print(len(val_history["loss"]))
-                        if (val_history["loss"][global_step]>val_history["loss"][last]):
-                            counter+=1
-                        last+=1
-                    if (counter>=9):
-                        print ("Bumped out at epoch ", epoch)
-                        return train_history, val_history
+                    if (val_history["loss"][global_step]<best):
+                        best=val_history["loss"][global_step]
+                        counter=0
+                    else:
+                        if (counter<10):
+                            count+=1
+                        else:
+                            print ("Bumped out at epoch ", epoch)
+                            return train_history, val_history
+                    #while (last < global_step and last>0):
+                    #    print (global_step," ",last)
+                    #    print(len(val_history["loss"]))
+                    #    if (val_history["loss"][global_step]>val_history["loss"][last]):
+                    #        counter+=1
+                    #    last+=1
+                    #if (counter>=9):
+                    #    print ("Bumped out at epoch ", epoch)
+                    #    return train_history, val_history
 
                 global_step += 1
         print ("Finished ", num_epochs)
