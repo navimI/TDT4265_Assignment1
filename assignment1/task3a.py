@@ -12,20 +12,24 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     Returns:
         Cross entropy error (float)
     """
-    # TODO implement this function (Task 3a)
+    entropy_loss = -np.sum(targets * np.log(outputs))/outputs.shape[0]
+
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
-    raise NotImplementedError
+
+    #Return the cross entropy loss
+    
+    return entropy_loss
 
 
 class SoftmaxModel:
 
     def __init__(self, l2_reg_lambda: float):
         # Define number of input nodes
-        self.I = None
+        self.I = 785
 
         # Define number of output nodes
-        self.num_outputs = None
+        self.num_outputs = 10
         self.w = np.zeros((self.I, self.num_outputs))
         self.grad = None
 
@@ -38,8 +42,18 @@ class SoftmaxModel:
         Returns:
             y: output of model with shape [batch size, num_outputs]
         """
-        # TODO implement this function (Task 3a)
-        return None
+        # Calculate of Z
+
+        z = X.dot(self.w)
+
+        # Calculate of output vector
+        
+        y = np.divide(np.exp(z), (np.sum(np.exp(z), axis=1, keepdims=True)))
+        
+
+        # softmax
+        return y
+        
 
     def backward(self, X: np.ndarray, outputs: np.ndarray, targets: np.ndarray) -> None:
         """
@@ -50,14 +64,19 @@ class SoftmaxModel:
             outputs: outputs of model of shape: [batch size, num_outputs]
             targets: labels/targets of each image of shape: [batch size, num_classes]
         """
-        # TODO implement this function (Task 3a)
-        # To implement L2 regularization task (4b) you can get the lambda value in self.l2_reg_lambda
-        # which is defined in the constructor.
+
+        # Implementation of L2 regularization
+
+        #self.grad += self.l2_reg_lambda * 2*self.w
+
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
+        self.grad = np.dot(X.T, - (targets - outputs))/(X.shape[0])+ self.l2_reg_lambda*2*self.w
+        
+        
 
     def zero_grad(self) -> None:
         self.grad = None
@@ -71,8 +90,13 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
     Returns:
         Y: shape [Num examples, num classes]
     """
-    # TODO implement this function (Task 3a)
-    raise NotImplementedError
+    # Initialization of a vector with zeros
+    one_hot_vector = np.zeros((Y.shape[0], num_classes), dtype=int)
+
+    # Set 1 in the vector index that correspond to the label
+    one_hot_vector[np.array(range(Y.shape[0])), Y.flatten()] = 1
+
+    return one_hot_vector
 
 
 def gradient_approximation_test(model: SoftmaxModel, X: np.ndarray, Y: np.ndarray):
