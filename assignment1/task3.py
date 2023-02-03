@@ -75,7 +75,7 @@ class SoftmaxTrainer(BaseTrainer):
 
 def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
-    num_epochs = 50
+    num_epochs = 500
     learning_rate = 0.01
     batch_size = 128
     l2_reg_lambda = 0
@@ -136,8 +136,14 @@ def main():
     train_history_reg01, val_history_reg01 = trainer.train(num_epochs)
     # You can finish the rest of task 4 below this point.
 
+    modelWeight = np.hstack(model.w.T[:, :-1].reshape((-1, 28, 28)))
+    model1Weight = np.hstack(model1.w.T[:, :-1].reshape((-1, 28, 28)))
+
+    image4b = np.vstack((modelWeight, model1Weight))
+
     # Plotting of softmax weights (Task 4b)
-    # plt.imsave("task4b_softmax_weight.png", weight, cmap="gray")
+    plt.imsave("task4b_softmax_weight.png", image4b, cmap="gray")
+    plt.show()
 
     # Plotting of accuracy for difference values of lambdas (task 4c)
     l2_lambdas = [1, .1, .01, .001]
