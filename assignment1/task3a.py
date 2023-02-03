@@ -74,7 +74,9 @@ class SoftmaxModel:
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
         self.grad = np.dot(X.T, - (targets - outputs))/(X.shape[0])
         # Implementation of L2 regularization
-        self.grad += self.l2_reg_lambda*(self.w**2)
+        #self.grad += self.l2_reg_lambda * self.w
+        N = X.shape[0]
+        self.grad = -(1/N)*X.T@(targets-outputs) + self.l2_reg_lambda*2*self.w
         
         
 
