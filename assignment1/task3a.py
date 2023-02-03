@@ -32,7 +32,6 @@ class SoftmaxModel:
         self.num_outputs = 10
         self.w = np.zeros((self.I, self.num_outputs))
         self.grad = None
-
         self.l2_reg_lambda = l2_reg_lambda
 
     def forward(self, X: np.ndarray) -> np.ndarray:
@@ -66,15 +65,16 @@ class SoftmaxModel:
         """
 
         # Implementation of L2 regularization
-
-        #self.grad += self.l2_reg_lambda * 2*self.w
+        #self.grad += self.l2_reg_lambda*2*self.w
 
         assert targets.shape == outputs.shape,\
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         self.grad = np.zeros_like(self.w)
         assert self.grad.shape == self.w.shape,\
             f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
-        self.grad = np.dot(X.T, - (targets - outputs))/(X.shape[0])+ self.l2_reg_lambda*2*self.w
+        self.grad = np.dot(X.T, - (targets - outputs))/(X.shape[0])
+        # Implementation of L2 regularization
+        self.grad += self.l2_reg_lambda*(self.w**2)
         
         
 
@@ -146,7 +146,7 @@ def main():
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
     # Simple test for forward pass. Note that this does not cover all errors!
-    model = SoftmaxModel(0.0)
+    model = SoftmaxModel(1.0)
     logits = model.forward(X_train)
     np.testing.assert_almost_equal(
         logits.mean(), 1/10,
@@ -158,6 +158,7 @@ def main():
     for i in range(2):
         gradient_approximation_test(model, X_train, Y_train)
         model.w = np.random.randn(*model.w.shape)
+    print(model.w)
 
 
 if __name__ == "__main__":
