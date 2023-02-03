@@ -100,7 +100,7 @@ class BaseTrainer:
                             counter+=1
                         else:
                             print ("Bumped out at epoch ", epoch)
-                            #return train_history, val_history
+                            return train_history, val_history
                     #while (last < global_step and last>0):
                     #    print (global_step," ",last)
                     #    print(len(val_history["loss"]))
