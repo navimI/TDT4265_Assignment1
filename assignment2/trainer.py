@@ -88,5 +88,15 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
+                    last=global_step-10
+                    if (val_history["loss"][global_step]<best):
+                        best=val_history["loss"][global_step]
+                        counter=0
+                    else:
+                        if (counter<10):
+                            counter+=1
+                        else:
+                            print ("Bumped out at epoch ", epoch)
+                            return train_history, val_history
                 global_step += 1
         return train_history, val_history
