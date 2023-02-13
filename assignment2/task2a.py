@@ -1,6 +1,8 @@
+##TASK2a
 import numpy as np
 import utils
 import typing
+import math
 np.random.seed(1)
 
 
@@ -14,6 +16,12 @@ def pre_process_images(X: np.ndarray):
     assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
+    mean=np.mean(X)
+    std=np.std(X)
+    X=(X-mean)/std
+    ones=np.ones((X.shape[0],1))
+    X=np.concatenate((X, ones), axis=1)
+    #np.vstack((X, ones))
     return X
 
 
@@ -25,10 +33,11 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     Returns:
         Cross entropy error (float)
     """
-    assert targets.shape == outputs.shape,\
-        f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
+    assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    bSize = targets.shape[0]
+    totLoss=np.sum(targets*np.log(outputs))
+    return totLoss/bSize
 
 
 class SoftmaxModel:
@@ -43,7 +52,7 @@ class SoftmaxModel:
         # Always reset random seed before weight init to get comparable results.
         np.random.seed(1)
         # Define number of input nodes
-        self.I = None
+        self.I = 785
         self.use_improved_sigmoid = use_improved_sigmoid
         self.use_relu = use_relu
         self.use_improved_weight_init = use_improved_weight_init
@@ -52,9 +61,11 @@ class SoftmaxModel:
         # neurons_per_layer = [64, 10] indicates that we will have two layers:
         # A hidden layer with 64 neurons and a output layer with 10 neurons.
         self.neurons_per_layer = neurons_per_layer
+        self.hidden_layer_output = np.array([None for i in range(len(self.neurons_per_layer))])
 
         # Initialize the weights
         self.ws = []
+        self.grads = []
         prev = self.I
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
@@ -63,6 +74,12 @@ class SoftmaxModel:
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
+        self.wtx = [None for i in range(len(self.ws))]
+
+
+
+
+
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
@@ -74,7 +91,42 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        return None
+        print (X.shape)
+        #assert(False)
+        self.layer_inputs = []
+        self.sigmoid_inputs = []
+        self.hidden_layer_output = np.array([None for i in range(len(self.neurons_per_layer))])
+        self.wtx = np.array([None for i in range(len(self.neurons_per_layer))])
+        #for layer_idx in range(len(self.ws)):
+          #self.layer_inputs.append(X)
+          #w = self.ws[layer_idx]
+          #X = X.dot(w)
+          #if len (self.ws) -1 == layer_idx:
+          #  X = np.exp(X)/(np.exp(X).sum(X, axis=1, keepdims=True))
+          #else:
+           # self.sigmoid_inputs.append(X)
+           # X = 1/(1 + np.exp(-X))
+  #          if not self.use_relu:
+  #              X = sigmoid (X, self.use_improved_sigmoid)
+  #            else:
+  #              X = relu(X)
+          #print (X.shape)
+#         assert(False)
+          #return X
+
+        #self.layer_inputs.append(X*ws[i])
+        #self.sigmoid_inputs.append(1.0/(1.0 + np.exp(-X)))
+
+
+
+        self.hidden_layer_output[0] = X @ self.ws[0]
+        self.wtx[0] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[0]))
+
+        #second layer
+        self.hidden_layer_output[1] = self.wtx[0] @ self.ws[1]
+        self.wtx[1] = np.exp(self.hidden_layer_output[1])/(np.sum(np.exp(self.hidden_layer_output[1]), axis=1, keepdims=True))
+
+        return self.wtx[1]
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -91,10 +143,26 @@ class SoftmaxModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
-        self.grads = []
+
+        #self.grads = []
+        #for layer_idx in range (len(self.ws) -1, -1, -1):
+        #  norm_factor = X.shape[0]
+        #  dW = delta.T.dot(self.layer_inputs[layer_idx])/norm_factor
+        #  dW = dW.T
+
+        diff = outputs - targets
+        #assert(False)
+        #self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
+        self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
+
+        diffh = (diff @ self.ws[1].T)*(1.0/(1.0+np.exp(-1*np.sum(self.hidden_layer_output[0]))))
+        self.grads[0] = (X.T @ diffh)/X.shape[0]
+
+
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
+            self.grads.append(-1*X.transpose().dot(targets - outputs)/targets.shape[0])
 
     def zero_grad(self) -> None:
         self.grads = [None for i in range(len(self.ws))]
@@ -109,7 +177,13 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO: Implement this function (copy from last assignment)
-    raise NotImplementedError
+    # Initialization of a vector with zeros
+    one_hot_vector = np.zeros((Y.shape[0], num_classes), dtype=int)
+
+    # Set 1 in the vector index that correspond to the label
+    one_hot_vector[np.array(range(Y.shape[0])), Y.flatten()] = 1
+
+    return one_hot_vector
 
 
 def gradient_approximation_test(
@@ -133,6 +207,8 @@ def gradient_approximation_test(
                 model.ws[layer_idx][i, j] = orig
                 # Actual gradient
                 logits = model.forward(X)
+                print (X.shape," ", logits.shape," ", Y.shape)
+                #assert(False)
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
                     model.grads[layer_idx][i, j]
