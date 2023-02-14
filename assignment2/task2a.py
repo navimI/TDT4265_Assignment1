@@ -36,7 +36,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
     bSize = targets.shape[0]
-    totLoss=np.sum(targets*np.log(outputs))
+    totLoss=-np.sum(targets*np.log(outputs))
     return totLoss/bSize
 
 
@@ -91,42 +91,21 @@ class SoftmaxModel:
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass.
         # such as self.hidden_layer_output = ...
-        print (X.shape)
-        #assert(False)
         self.layer_inputs = []
         self.sigmoid_inputs = []
+
         self.hidden_layer_output = np.array([None for i in range(len(self.neurons_per_layer))])
         self.wtx = np.array([None for i in range(len(self.neurons_per_layer))])
-        #for layer_idx in range(len(self.ws)):
-          #self.layer_inputs.append(X)
-          #w = self.ws[layer_idx]
-          #X = X.dot(w)
-          #if len (self.ws) -1 == layer_idx:
-          #  X = np.exp(X)/(np.exp(X).sum(X, axis=1, keepdims=True))
-          #else:
-           # self.sigmoid_inputs.append(X)
-           # X = 1/(1 + np.exp(-X))
-  #          if not self.use_relu:
-  #              X = sigmoid (X, self.use_improved_sigmoid)
-  #            else:
-  #              X = relu(X)
-          #print (X.shape)
-#         assert(False)
-          #return X
 
-        #self.layer_inputs.append(X*ws[i])
-        #self.sigmoid_inputs.append(1.0/(1.0 + np.exp(-X)))
-
-
-
-        self.hidden_layer_output[0] = X @ self.ws[0]
-        self.wtx[0] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[0]))
-
-        #second layer
-        self.hidden_layer_output[1] = self.wtx[0] @ self.ws[1]
-        self.wtx[1] = np.exp(self.hidden_layer_output[1])/(np.sum(np.exp(self.hidden_layer_output[1]), axis=1, keepdims=True))
-
-        return self.wtx[1]
+        mult=X
+        for i in range (len(self.ws)):
+          self.hidden_layer_output[i] = mult@self.ws[i]
+          if (i < len(self.ws)-1):
+            self.wtx[i] = 1.0/(1.0 + np.exp(-(self.hidden_layer_output[i])))
+            mult=self.wtx[i]
+          else:
+            self.wtx[i] = np.exp(self.hidden_layer_output[i])/(np.sum(np.exp(self.hidden_layer_output[i]), axis=1, keepdims=True))
+        return self.wtx[len(self.ws)-1]
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
                  targets: np.ndarray) -> None:
@@ -144,18 +123,10 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
 
-        #self.grads = []
-        #for layer_idx in range (len(self.ws) -1, -1, -1):
-        #  norm_factor = X.shape[0]
-        #  dW = delta.T.dot(self.layer_inputs[layer_idx])/norm_factor
-        #  dW = dW.T
-
         diff = outputs - targets
-        #assert(False)
-        #self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
         self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
-
-        diffh = (diff @ self.ws[1].T)*(1.0/(1.0+np.exp(-1*np.sum(self.hidden_layer_output[0]))))
+        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
+        diffh = (diff @ self.ws[1].T)*sigm*(1-sigm)
         self.grads[0] = (X.T @ diffh)/X.shape[0]
 
 
@@ -207,7 +178,7 @@ def gradient_approximation_test(
                 model.ws[layer_idx][i, j] = orig
                 # Actual gradient
                 logits = model.forward(X)
-                print (X.shape," ", logits.shape," ", Y.shape)
+                #print (X.shape," ", logits.shape," ", Y.shape)
                 #assert(False)
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
