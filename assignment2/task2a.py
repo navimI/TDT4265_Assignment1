@@ -21,7 +21,6 @@ def pre_process_images(X: np.ndarray):
     X=(X-mean)/std
     ones=np.ones((X.shape[0],1))
     X=np.concatenate((X, ones), axis=1)
-    #np.vstack((X, ones))
     return X
 
 
@@ -36,7 +35,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
     bSize = targets.shape[0]
-    totLoss=-np.sum(targets*np.log(outputs))
+    totLoss=np.sum(targets*np.log(outputs))
     return totLoss/bSize
 
 
@@ -76,11 +75,6 @@ class SoftmaxModel:
         self.grads = [None for i in range(len(self.ws))]
         self.wtx = [None for i in range(len(self.ws))]
 
-
-
-
-
-
     def forward(self, X: np.ndarray) -> np.ndarray:
         """
         Args:
@@ -93,18 +87,18 @@ class SoftmaxModel:
         # such as self.hidden_layer_output = ...
         self.layer_inputs = []
         self.sigmoid_inputs = []
-
         self.hidden_layer_output = np.array([None for i in range(len(self.neurons_per_layer))])
         self.wtx = np.array([None for i in range(len(self.neurons_per_layer))])
-
+       
         mult=X
         for i in range (len(self.ws)):
-          self.hidden_layer_output[i] = mult@self.ws[i]
+          self.hidden_layer_output[i] = mult @ self.ws[i]
           if (i < len(self.ws)-1):
-            self.wtx[i] = 1.0/(1.0 + np.exp(-(self.hidden_layer_output[i])))
-            mult=self.wtx[i]
+            self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
+            mult = self.wtx[i]
           else:
             self.wtx[i] = np.exp(self.hidden_layer_output[i])/(np.sum(np.exp(self.hidden_layer_output[i]), axis=1, keepdims=True))
+
         return self.wtx[len(self.ws)-1]
 
     def backward(self, X: np.ndarray, outputs: np.ndarray,
@@ -178,7 +172,7 @@ def gradient_approximation_test(
                 model.ws[layer_idx][i, j] = orig
                 # Actual gradient
                 logits = model.forward(X)
-                #print (X.shape," ", logits.shape," ", Y.shape)
+                print (X.shape," ", logits.shape," ", Y.shape)
                 #assert(False)
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
