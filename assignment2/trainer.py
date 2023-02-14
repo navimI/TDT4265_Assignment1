@@ -96,8 +96,8 @@ class BaseTrainer:
                     else:
                         if (counter<10):
                             counter+=1
-                        #else:
-                            #print ("Bumped out at epoch ", epoch)
-                            #return train_history, val_history
+                        else:
+                            print ("Bumped out at epoch ", epoch)
+                            return train_history, val_history
                 global_step += 1
         return train_history, val_history
