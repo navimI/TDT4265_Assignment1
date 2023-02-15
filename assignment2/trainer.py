@@ -1,5 +1,6 @@
 import numpy as np
 import utils
+import math
 
 
 class BaseTrainer:
