@@ -35,7 +35,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
     bSize = targets.shape[0]
-    totLoss=np.sum(targets*np.log(outputs))
+    totLoss=-np.sum(targets*np.log(outputs))
     return totLoss/bSize
 
 
