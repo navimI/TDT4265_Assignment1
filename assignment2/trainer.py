@@ -90,8 +90,8 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
-                    print ("Cycle number ", epoch, " vh=",val_history["loss"][global_step])
-                    if (val_history["loss"][global_step]<best): #new value is batter than the old one
+                    #print ("Cycle number ", epoch, " vh=",val_history["loss"][global_step])
+                    if (math.abs(val_history["loss"][global_step])<math.abs(best)): #new value is batter than the old one
                         best=val_history["loss"][global_step]
                         counter=0
                     else:
