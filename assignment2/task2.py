@@ -1,3 +1,4 @@
+##TASK2
 import numpy as np
 import utils
 import matplotlib.pyplot as plt
@@ -16,13 +17,12 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    computed_matrix = model.forward(X) #simplifying
+    computed_matrix = model.forward(X)
     same=0
     for i in range(targets.shape[0]):
-      if targets[i] == (computed_matrix[i]>0.5):
+      if (np.equal(np.mean(targets[i] > 0.5), np.mean(computed_matrix[i] > 0.5))):
         same+=1
-    accuracy = same/targets.shape[0]
-    return accuracy
+    return same/targets.shape[0]
 
 
 class SoftmaxTrainer(BaseTrainer):
@@ -52,12 +52,18 @@ class SoftmaxTrainer(BaseTrainer):
             loss value (float) on batch
         """
         # TODO: Implement this function (task 2c)
-        logits = self.forward(X_batch)
-        self.backward(X_batch, logits, Y_batch)
+        #logits = self.model.forward(X_batch)
+        #self.model.backward(X_batch, logits, Y_batch)
+        #loss = cross_entropy_loss(Y_batch, logits)
+        #print(self.model.ws, "  ", self.model.grads)
+        #for i in range(len(self.model.ws)):
+        #  self.model.ws[i] -= self.model.grads[i]*self.learning_rate
 
-        loss = 0
-
-        loss = cross_entropy_loss(Y_batch, logits)  # sol
+        logits = self.model.forward(X_batch)
+        self.model.backward(X_batch, logits, Y_batch)
+        for i in range(len(self.model.ws)):
+          self.model.ws[i] -= self.model.grads[i]*self.learning_rate
+        loss = cross_entropy_loss(Y_batch, logits)
 
         return loss
 
@@ -112,6 +118,8 @@ def main():
         use_improved_sigmoid,
         use_improved_weight_init,
         use_relu)
+    for layer_idx, w in enumerate(model.ws):
+        model.ws[layer_idx] = np.random.uniform(-1, 1, size=w.shape)
     trainer = SoftmaxTrainer(
         momentum_gamma, use_momentum,
         model, learning_rate, batch_size, shuffle_data,
@@ -130,8 +138,7 @@ def main():
     plt.figure(figsize=(20, 12))
     plt.subplot(1, 2, 1)
     plt.ylim([0., 0.9])
-    utils.plot_loss(train_history["loss"],
-                    "Training Loss", npoints_to_average=10)
+    utils.plot_loss(train_history["loss"], "Training Loss", npoints_to_average=10)
     utils.plot_loss(val_history["loss"], "Validation Loss")
     plt.legend()
     plt.xlabel("Number of Training Steps")
