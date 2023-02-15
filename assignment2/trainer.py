@@ -73,7 +73,7 @@ class BaseTrainer:
         )
 
         global_step = 0
-        best = 200000
+        best = float('inf')
         counter = 0
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
@@ -90,8 +90,8 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
-                    last=global_step-10
-                    if (val_history["loss"][global_step]<best):
+                    print ("Cycle number ", epoch, " vh=",val_history["loss"][global_step])
+                    if (val_history["loss"][global_step]<best): #new value is batter than the old one
                         best=val_history["loss"][global_step]
                         counter=0
                     else:
