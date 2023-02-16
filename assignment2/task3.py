@@ -8,7 +8,7 @@ def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
     learning_rate = .1
-    #
+    
     batch_size = 32
     neurons_per_layer = [64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
@@ -78,10 +78,10 @@ def main():
     train_history_sigmoid, val_history_sigmoid = trainer_sigmoid.train(num_epochs)
     
     #model trained with momentum
-    learning_rate = .02 # lr for momentum
     use_improved_weight_init = True
     use_improved_sigmoid = True
     use_momentum = True
+    learning_rate = .02 # lr for momentum
 
     model_momentum = SoftmaxModel(
         neurons_per_layer,

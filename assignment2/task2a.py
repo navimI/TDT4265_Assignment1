@@ -35,7 +35,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
     bSize = targets.shape[0]
-    totLoss=-np.sum(targets*np.log(outputs))
+    totLoss=np.sum(targets*np.log(outputs))
     return totLoss/bSize
 
 
@@ -69,10 +69,7 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            if use_improved_weight_init:
-                w = np.random.normal(0, 1/np.sqrt(prev), (w_shape))
-            else:
-                w = np.random.uniform(-1,1,w_shape)
+            w = np.zeros(w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
@@ -97,10 +94,7 @@ class SoftmaxModel:
         for i in range (len(self.ws)):
           self.hidden_layer_output[i] = mult @ self.ws[i]
           if (i < len(self.ws)-1):
-            if(self.use_improved_sigmoid):
-                self.wtx[i]=1.7159*np.tanh(2./3.*self.hidden_layer_output[i])
-            else:
-                self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
+            self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
             mult = self.wtx[i]
           else:
             self.wtx[i] = np.exp(self.hidden_layer_output[i])/(np.sum(np.exp(self.hidden_layer_output[i]), axis=1, keepdims=True))
@@ -123,15 +117,22 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
 
-        diff = outputs - targets
-        self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
-        if self.use_improved_sigmoid:
-            sigm = (2.0/3.0)*(1.7159)*(1.0-np.tanh((2/3)*self.hidden_layer_output[0]**2))
-        else:
-            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
-            sigm = sigm*(1-sigm)
-        diffh = (diff @ self.ws[1].T)*sigm
-        self.grads[0] = (X.T @ diffh)/X.shape[0]
+        #diff = targets - outputs
+        #self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
+
+
+        #sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
+        #diffh = (diff @ self.ws[1].T)*sigm*(1-sigm)
+        #self.grads[0] = (X.T @ diffh)/X.shape[0]
+
+        diff = targets - outputs
+        for i in range (len(self.ws)):
+          if (i < len(self.ws)-1):
+            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[i])))
+            diff = (diff @ self.ws[i+1].T)*sigm*(1-sigm)
+            self.grads[i] = (X.T @ diff)/X.shape[0]
+          else:
+            self.grads[i] = (self.wtx[i-1].T @ (targets - outputs))/(X.shape[0])
 
 
         for grad, w in zip(self.grads, self.ws):
