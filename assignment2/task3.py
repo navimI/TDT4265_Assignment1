@@ -8,7 +8,7 @@ def main():
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
     learning_rate = .1
-    #learning_rate = .02 # lr for momentum
+    #
     batch_size = 32
     neurons_per_layer = [64, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
@@ -74,10 +74,11 @@ def main():
         model_sigmoid, learning_rate, batch_size, shuffle_data,
         X_train, Y_train, X_val, Y_val,
     )
-
+    
     train_history_sigmoid, val_history_sigmoid = trainer_sigmoid.train(num_epochs)
     
     #model trained with momentum
+    learning_rate = .02 # lr for momentum
     use_improved_weight_init = True
     use_improved_sigmoid = True
     use_momentum = True
@@ -94,23 +95,27 @@ def main():
     )
 
     train_history_momentum, val_history_momentum = trainer_momentum.train(num_epochs)
-     
+    
     
     #plt.subplot(1, 2, 1)
     plt.title("Training and Validation loss")
 
     utils.plot_loss(train_history["loss"],
-                    "Task 2 Model", npoints_to_average=10)
+                    "Training Task 2 Model", npoints_to_average=10)
+    utils.plot_loss(val_history["loss"], ("Validation Task 2 Model"))
 
 
     utils.plot_loss(
-        train_history_weights["loss"], "Task 2 Model - Improved weights", npoints_to_average=10)
-    
+        train_history_weights["loss"], "Training Task 2 Model - Improved weights", npoints_to_average=10)
+    utils.plot_loss(val_history_weights["loss"], ("Validation Task 2 Model - Improved weights"))
+
     utils.plot_loss(
-        train_history_sigmoid["loss"], "Task 2 Model - Improved sigmoid", npoints_to_average=10)
-    
+        train_history_sigmoid["loss"], "Training Task 2 Model - Improved sigmoid", npoints_to_average=10)
+    utils.plot_loss(val_history_sigmoid["loss"], ("Validation Task 2 Model - Improved sigmoid"))
+     
     utils.plot_loss(
-        train_history_momentum["loss"], "Task 2 Model - Improved momentum", npoints_to_average=10)
+        train_history_momentum["loss"], "Training Task 2 Model - Improved momentum", npoints_to_average=10)
+    utils.plot_loss(val_history_momentum["loss"], ("Validation Task 2 Model - Improved momentum"))
     
     plt.ylim([0, .4])
     plt.xlabel("Training steps")
