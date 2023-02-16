@@ -69,7 +69,10 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            w = np.zeros(w_shape)
+            if use_improved_weight_init:
+                w = np.random.normal(0, 1/np.sqrt(prev), (w_shape))
+            else:
+                w = np.random.uniform(-1,1,w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
@@ -94,7 +97,10 @@ class SoftmaxModel:
         for i in range (len(self.ws)):
           self.hidden_layer_output[i] = mult @ self.ws[i]
           if (i < len(self.ws)-1):
-            self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
+            if(self.use_improved_sigmoid):
+                self.wtx[i]=1.7159*np.tanh(2./3.*self.hidden_layer_output[i])
+            else:
+                self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
             mult = self.wtx[i]
           else:
             self.wtx[i] = np.exp(self.hidden_layer_output[i])/(np.sum(np.exp(self.hidden_layer_output[i]), axis=1, keepdims=True))
@@ -119,8 +125,12 @@ class SoftmaxModel:
 
         diff = outputs - targets
         self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
-        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
-        diffh = (diff @ self.ws[1].T)*sigm*(1-sigm)
+        if self.use_improved_sigmoid:
+            sigm = (2.0/3.0)*(1.7159)*(1.0-np.tanh((2/3)*self.hidden_layer_output[0]**2))
+        else:
+            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
+            sigm = sigm*(1-sigm)
+        diffh = (diff @ self.ws[1].T)*sigm
         self.grads[0] = (X.T @ diffh)/X.shape[0]
 
 
