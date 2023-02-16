@@ -117,23 +117,18 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
 
-        #diff = targets - outputs
-        #self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
-
-
-        #sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
-        #diffh = (diff @ self.ws[1].T)*sigm*(1-sigm)
-        #self.grads[0] = (X.T @ diffh)/X.shape[0]
-
         diff = targets - outputs
-        for i in range (len(self.ws)):
-          if (i < len(self.ws)-1):
-            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[i])))
-            diff = (diff @ self.ws[i+1].T)*sigm*(1-sigm)
-            self.grads[i] = (X.T @ diff)/X.shape[0]
-          else:
-            self.grads[i] = (self.wtx[i-1].T @ (targets - outputs))/(X.shape[0])
+        self.grads[len(self.ws)-1] = (self.wtx[len(self.ws)-2].T @ diff)/X.shape[0]
 
+        ind = 0
+        for i in range(len(self.ws)-2):
+          ind = len(self.ws)-2-i
+          sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind])))
+          diff = (diff @ self.ws[ind-2].T)*sigm*(1-sigm)
+          self.grads[ind-3] = (self.wtx[ind-4].T @ diff)/X.shape[0]
+        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
+        diff = (diff @ self.ws[-1-ind].T)*sigm*(1-sigm)
+        self.grads[0] = (X.T @ diff)/X.shape[0]
 
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
@@ -183,7 +178,7 @@ def gradient_approximation_test(
                 model.ws[layer_idx][i, j] = orig
                 # Actual gradient
                 logits = model.forward(X)
-                print (X.shape," ", logits.shape," ", Y.shape)
+                #print (X.shape," ", logits.shape," ", Y.shape)
                 #assert(False)
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
@@ -211,8 +206,8 @@ def main():
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
     neurons_per_layer = [64, 10]
-    use_improved_sigmoid = True
     use_improved_weight_init = True
+    use_improved_sigmoid = False
     use_relu = False
     model = SoftmaxModel(
         neurons_per_layer, use_improved_sigmoid, use_improved_weight_init, use_relu)
