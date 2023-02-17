@@ -123,9 +123,10 @@ class SoftmaxModel:
         ind = 0
         for i in range(len(self.ws)-2):
           ind = len(self.ws)-2-i
-          sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind])))
-          diff = (diff @ self.ws[ind-2].T)*sigm*(1-sigm)
-          self.grads[ind-3] = (self.wtx[ind-4].T @ diff)/X.shape[0]
+          sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind])))#0,1,2,3,4
+          diff = (diff @ self.ws[ind+1].T)*sigm*(1-sigm)#4
+          self.grads[ind] = (self.wtx[ind].T @ diff)/X.shape[0]
+
         sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
         diff = (diff @ self.ws[-1-ind].T)*sigm*(1-sigm)
         self.grads[0] = (X.T @ diff)/X.shape[0]
@@ -205,7 +206,7 @@ def main():
     assert X_train.shape[1] == 785,\
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
-    neurons_per_layer = [64, 10]
+    neurons_per_layer = [64, 64, 10]
     use_improved_weight_init = True
     use_improved_sigmoid = False
     use_relu = False
