@@ -206,7 +206,7 @@ def main():
     assert X_train.shape[1] == 785,\
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
-    neurons_per_layer = [64, 64, 64, 10]
+    neurons_per_layer = [64, 10]
     use_improved_weight_init = True
     use_improved_sigmoid = False
     use_relu = False
