@@ -120,17 +120,16 @@ class SoftmaxModel:
         diff = targets - outputs
         self.grads[len(self.ws)-1] = (self.wtx[len(self.ws)-2].T @ diff)/X.shape[0]
 
-        ind = 0
+        ind=0
         for i in range(len(self.ws)-2):
-          ind = len(self.ws)-2-i
-          sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind])))#0,1,2,3,4
-          diff = (diff @ self.ws[ind+1].T)*sigm*(1-sigm)#4
-          self.grads[ind] = (self.wtx[ind].T @ diff)/X.shape[0]
+            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind-2])))
+            diff = (diff @ self.ws[ind-1].T)*sigm*(1-sigm)
+            self.grads[ind-2] = (self.wtx[ind-3].T @ diff)/X.shape[0]
+            ind = len(self.ws)-i-1
 
-        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
-        diff = (diff @ self.ws[-1-ind].T)*sigm*(1-sigm)
-        self.grads[0] = (X.T @ diff)/X.shape[0]
-
+        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind-2])))
+        diff = (diff @ self.ws[ind-1].T)*sigm*(1-sigm)
+        self.grads[ind-2] = (X.T @ diff)/X.shape[0]
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
@@ -184,6 +183,7 @@ def gradient_approximation_test(
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
                     model.grads[layer_idx][i, j]
+                print("Ok")
                 assert abs(difference) <= epsilon**1,\
                     f"Calculated gradient is incorrect. " \
                     f"Layer IDX = {layer_idx}, i={i}, j={j}.\n" \
@@ -206,7 +206,7 @@ def main():
     assert X_train.shape[1] == 785,\
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
-    neurons_per_layer = [64, 64, 10]
+    neurons_per_layer = [64, 64, 64, 10]
     use_improved_weight_init = True
     use_improved_sigmoid = False
     use_relu = False
