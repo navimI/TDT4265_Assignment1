@@ -13,7 +13,7 @@ def pre_process_images(X: np.ndarray):
     Returns:
         X: images of shape [batch size, 785] normalized as described in task2a
     """
-    assert X.shape[1] == 784,\
+    """ assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
     mean=np.mean(X)
@@ -21,7 +21,15 @@ def pre_process_images(X: np.ndarray):
     X=(X-mean)/std
     ones=np.ones((X.shape[0],1))
     X=np.concatenate((X, ones), axis=1)
-    return X
+    return X  """
+    X_train, _, _, _ = utils.load_full_mnist()
+    mean = np.mean(X_train, axis=0)
+    std = np.std(X_train, axis=0, ddof=1)
+    # Normalizing
+    new_X = (X-mean)/std
+    ones = np.ones((X.shape[0],1))
+    new_X = np.concatenate((new_X, ones), axis=1)
+    return new_X
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
@@ -34,10 +42,12 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     """
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    bSize = targets.shape[0]
+    """ bSize = targets.shape[0]
     totLoss=-np.sum(targets*np.log(outputs))
     return totLoss/bSize
-
+    """
+    cross_entropy = -np.sum(targets*np.log(outputs), axis=1)
+    return np.mean(cross_entropy)
 
 class SoftmaxModel:
 
