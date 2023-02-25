@@ -19,6 +19,7 @@ class ExampleModel(nn.Module):
         """
         super().__init__()
         # TODO: Implement this function (Task  2a)
+        #w1=torch.randn
         num_filters = 32  # Set number of filters in first conv layer
         self.num_classes = num_classes
         # Define the convolutional layers
@@ -29,10 +30,30 @@ class ExampleModel(nn.Module):
                 kernel_size=5,
                 stride=1,
                 padding=2
-            )
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(
+                in_channels=num_filters,
+                out_channels=64,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )
         # The output of feature_extractor will be [batch_size, num_filters, 16, 16]
-        self.num_output_features = 32*32*32
+        self.num_output_features = 2048
         # Initialize our last fully connected layer
         # Inputs all extracted features from the convolutional layers
         # Outputs num_classes predictions, 1 for each class.
@@ -51,9 +72,15 @@ class ExampleModel(nn.Module):
         # TODO: Implement this function (Task  2a)
         batch_size = x.shape[0]
         out = x
+        #x[2] = (x[2]-5+2*2)/1+1
+        #x[3] = (x[3]-5+2*2)/1+1
+        #out[1]=x[2]*x[3]*x[1]
+        out = self.feature_extractor(out).view(batch_size,-1)
+        #x = x.view(batch_size,-1)
+        out = self.classifier(out)
         expected_shape = (batch_size, self.num_classes)
         assert out.shape == (batch_size, self.num_classes),\
-            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
+            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}, outs are: {out[1]}"
         return out
 
 
@@ -77,7 +104,7 @@ def create_plots(trainer: Trainer, name: str):
 
 def main():
     # Set the random generator seed (parameters, shuffling etc).
-    # You can try to change this and check if you still get the same result! 
+    # You can try to change this and check if you still get the same result!
     utils.set_seed(0)
     epochs = 10
     batch_size = 64
@@ -95,6 +122,9 @@ def main():
     )
     trainer.train()
     create_plots(trainer, "task2")
+    print("Training loss:", trainer.train_history["loss"])
+    print("Validation loss:", trainer.validation_history["loss"])
+    print("Validation Accuracy:", trainer.validation_history["accuracy"])
 
 if __name__ == "__main__":
     main()
