@@ -60,7 +60,9 @@ class ExampleModel(nn.Module):
         # There is no need for softmax activation function, as this is
         # included with nn.CrossEntropyLoss
         self.classifier = nn.Sequential(
-            nn.Linear(self.num_output_features, num_classes),
+            nn.Linear(self.num_output_features, 64),
+            nn.ReLU(),
+            nn.Linear(64, num_classes)
         )
 
     def forward(self, x):
@@ -76,7 +78,6 @@ class ExampleModel(nn.Module):
         #x[3] = (x[3]-5+2*2)/1+1
         #out[1]=x[2]*x[3]*x[1]
         out = self.feature_extractor(out).view(batch_size,-1)
-        #x = x.view(batch_size,-1)
         out = self.classifier(out)
         expected_shape = (batch_size, self.num_classes)
         assert out.shape == (batch_size, self.num_classes),\
