@@ -13,7 +13,7 @@ def pre_process_images(X: np.ndarray):
     Returns:
         X: images of shape [batch size, 785] normalized as described in task2a
     """
-    """ assert X.shape[1] == 784,\
+    assert X.shape[1] == 784,\
         f"X.shape[1]: {X.shape[1]}, should be 784"
     # TODO implement this function (Task 2a)
     mean=np.mean(X)
@@ -21,15 +21,7 @@ def pre_process_images(X: np.ndarray):
     X=(X-mean)/std
     ones=np.ones((X.shape[0],1))
     X=np.concatenate((X, ones), axis=1)
-    return X  """
-    X_train, _, _, _ = utils.load_full_mnist()
-    mean = np.mean(X_train, axis=0)
-    std = np.std(X_train, axis=0, ddof=1)
-    # Normalizing
-    new_X = (X-mean)/std
-    ones = np.ones((X.shape[0],1))
-    new_X = np.concatenate((new_X, ones), axis=1)
-    return new_X
+    return X
 
 
 def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
@@ -42,12 +34,10 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     """
     assert targets.shape == outputs.shape, f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
     # TODO: Implement this function (copy from last assignment)
-    """ bSize = targets.shape[0]
-    totLoss=-np.sum(targets*np.log(outputs))
+    bSize = targets.shape[0]
+    totLoss=np.sum(targets*np.log(outputs))
     return totLoss/bSize
-    """
-    cross_entropy = -np.sum(targets*np.log(outputs), axis=1)
-    return np.mean(cross_entropy)
+
 
 class SoftmaxModel:
 
@@ -79,10 +69,7 @@ class SoftmaxModel:
         for size in self.neurons_per_layer:
             w_shape = (prev, size)
             print("Initializing weight to shape:", w_shape)
-            if use_improved_weight_init:
-                w = np.random.normal(0, 1/np.sqrt(prev), (w_shape))
-            else:
-                w = np.random.uniform(-1,1,w_shape)
+            w = np.zeros(w_shape)
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
@@ -107,10 +94,7 @@ class SoftmaxModel:
         for i in range (len(self.ws)):
           self.hidden_layer_output[i] = mult @ self.ws[i]
           if (i < len(self.ws)-1):
-            if(self.use_improved_sigmoid):
-                self.wtx[i]=1.7159*np.tanh(2./3.*self.hidden_layer_output[i])
-            else:
-                self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
+            self.wtx[i] = 1.0/(1.0 + np.exp(-self.hidden_layer_output[i]))
             mult = self.wtx[i]
           else:
             self.wtx[i] = np.exp(self.hidden_layer_output[i])/(np.sum(np.exp(self.hidden_layer_output[i]), axis=1, keepdims=True))
@@ -133,17 +117,19 @@ class SoftmaxModel:
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
 
-        diff = outputs - targets
-        self.grads[1] = (self.wtx[0].T @ diff)/(X.shape[0])
-        if self.use_improved_sigmoid:
-            sigm = (2.0/3.0)*(1.7159)*(1.0-np.tanh((2/3)*self.hidden_layer_output[0]**2))
-        else:
-            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[0])))
-            sigm = sigm*(1-sigm)
-        diffh = (diff @ self.ws[1].T)*sigm
-        self.grads[0] = (X.T @ diffh)/X.shape[0]
+        diff = targets - outputs
+        self.grads[len(self.ws)-1] = (self.wtx[len(self.ws)-2].T @ diff)/X.shape[0]
 
+        ind=0
+        for i in range(len(self.ws)-2):
+            sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind-2])))
+            diff = (diff @ self.ws[ind-1].T)*sigm*(1-sigm)
+            self.grads[ind-2] = (self.wtx[ind-3].T @ diff)/X.shape[0]
+            ind = len(self.ws)-i-1
 
+        sigm=1.0/(1.0 + np.exp(-(self.hidden_layer_output[ind-2])))
+        diff = (diff @ self.ws[ind-1].T)*sigm*(1-sigm)
+        self.grads[ind-2] = (X.T @ diff)/X.shape[0]
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
                 f"Expected the same shape. Grad shape: {grad.shape}, w: {w.shape}."
@@ -192,11 +178,12 @@ def gradient_approximation_test(
                 model.ws[layer_idx][i, j] = orig
                 # Actual gradient
                 logits = model.forward(X)
-                print (X.shape," ", logits.shape," ", Y.shape)
+                #print (X.shape," ", logits.shape," ", Y.shape)
                 #assert(False)
                 model.backward(X, logits, Y)
                 difference = gradient_approximation - \
                     model.grads[layer_idx][i, j]
+                print("Ok")
                 assert abs(difference) <= epsilon**1,\
                     f"Calculated gradient is incorrect. " \
                     f"Layer IDX = {layer_idx}, i={i}, j={j}.\n" \
@@ -220,8 +207,8 @@ def main():
         f"Expected X_train to have 785 elements per image. Shape was: {X_train.shape}"
 
     neurons_per_layer = [64, 10]
-    use_improved_sigmoid = True
     use_improved_weight_init = True
+    use_improved_sigmoid = False
     use_relu = False
     model = SoftmaxModel(
         neurons_per_layer, use_improved_sigmoid, use_improved_weight_init, use_relu)
