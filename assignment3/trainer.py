@@ -58,7 +58,8 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 dataloaders: typing.List[torch.utils.data.DataLoader]):
+                 dataloaders: typing.List[torch.utils.data.DataLoader],
+                 optimizer: str = "SGD"):
         """
             Initialize our trainer class.
         """
@@ -76,8 +77,12 @@ class Trainer:
         print(self.model)
 
         # Define our optimizer. SGD = Stochastich Gradient Descent
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
+        if optimizer == "SGD":
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
                                          self.learning_rate)
+        if optimizer == "Adam":
+            self.optimizer = torch.optim.Adam(self.model.parameters(),
+                                              self.learning_rate)
 
         # Load our dataset
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders
@@ -210,3 +215,15 @@ class Trainer:
                 f"Could not load best checkpoint. Did not find under: {self.checkpoint_dir}")
             return
         self.model.load_state_dict(state_dict)
+
+    def test_model(self):
+        self.load_best_model()
+        loss_test, accuracy_test = compute_loss_and_accuracy(
+            self.dataloader_test, self.model, self.loss_criterion)
+        print(
+            f"Average test loss is {loss_test} and accuracy is {accuracy_test}")
+
+        loss_train, accuracy_train = compute_loss_and_accuracy(
+            self.dataloader_train, self.model, self.loss_criterion)
+        print(
+            f"Average train loss is {loss_train} and accuracy is {accuracy_train}")

@@ -122,6 +122,7 @@ def main():
         dataloaders
     )
     trainer.train()
+    trainer.test_model()
     create_plots(trainer, "task2")
     print("Training loss:", trainer.train_history["loss"])
     print("Validation loss:", trainer.validation_history["loss"])
