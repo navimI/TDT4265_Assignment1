@@ -24,8 +24,10 @@ def run_demo(config_path: Path, score_threshold: float, image_dir: Path, output_
     ckpt = load_checkpoint(cfg.output_dir.joinpath("checkpoints"), map_location=tops.get_device())
     model.load_state_dict(ckpt["model"])
 
+    image_dir = Path(image_dir.decode())
     image_paths = list(image_dir.glob("*.png")) + list(image_dir.glob("*.jpg"))
 
+    output_dir = Path(output_dir.decode())
     output_dir.mkdir(exist_ok=True, parents=True)
     cpu_transform = instantiate(cfg.data_val.dataset.transform)
     gpu_transform = instantiate(cfg.data_val.gpu_transform)

@@ -12,9 +12,9 @@ from .utils import get_dataset_dir, get_output_dir
 train = dict(
     batch_size=32,
     amp=True,  # Automatic mixed precision
-    log_interval=25,
+    log_interval=15,
     seed=0,
-    epochs=20,
+    epochs=25,
     _output_dir=get_output_dir(),
     imshape=(300, 300),
     image_channels=3
@@ -57,7 +57,7 @@ model = L(SSD300)(
 ) """
 
 optimizer = L(torch.optim.Adam)(
-    lr=1e-3, betas=(0.9, 0.999), weight_decay=0.0005
+    lr=1e-4, betas=(0.9, 0.999), weight_decay=0.0005
 )
 
 schedulers = dict(
