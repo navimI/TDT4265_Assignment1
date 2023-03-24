@@ -51,14 +51,14 @@ model = L(SSD300)(
 )
 
 #TODO: change the optimizer to adam?
-""" optimizer = L(torch.optim.SGD)(
+optimizer = L(torch.optim.SGD)(
     # Tip: Scale the learning rate by batch size! 5e-3 is set for a batch size of 32. use 2*5e-3 if you use 64
     lr=1e-3, momentum=0.9, weight_decay=0.0005
-) """
-
-optimizer = L(torch.optim.Adam)(
-    lr=1e-4, betas=(0.9, 0.999), weight_decay=0.0005
 )
+
+""" optimizer = L(torch.optim.Adam)(
+    lr=1e-4, betas=(0.9, 0.999), weight_decay=0.0005
+) """
 
 schedulers = dict(
     linear=L(LinearLR)(start_factor=0.1, end_factor=1, total_iters=500),
