@@ -14,7 +14,7 @@ train = dict(
     amp=True,  # Automatic mixed precision
     log_interval=20,
     seed=0,
-    epochs=20,
+    epochs=30,
     _output_dir=get_output_dir(),
     imshape=(300, 300),
     image_channels=3
@@ -50,10 +50,16 @@ model = L(SSD300)(
     num_classes=10 + 1  # Add 1 for background
 )
 
+#TODO: change the optimizer to adam?
 optimizer = L(torch.optim.SGD)(
     # Tip: Scale the learning rate by batch size! 5e-3 is set for a batch size of 32. use 2*5e-3 if you use 64
-    lr=5e-3, momentum=0.9, weight_decay=0.0005
+    lr=1e-3, momentum=0.9, weight_decay=0.0005
 )
+
+""" optimizer = L(torch.optim.Adam)(
+    lr=1e-3, betas=(0.9, 0.999), weight_decay=0.0005
+) """
+
 schedulers = dict(
     linear=L(LinearLR)(start_factor=0.1, end_factor=1, total_iters=500),
     multistep=L(MultiStepLR)(milestones=[], gamma=0.1)

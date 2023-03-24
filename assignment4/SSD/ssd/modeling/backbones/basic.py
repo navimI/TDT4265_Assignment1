@@ -43,14 +43,15 @@ class BasicModel(torch.nn.Module):
             nn.MaxPool2d(stride=2, kernel_size=2),
             nn.Conv2d(
                 in_channels=64,
-                out_channels=64,
+                out_channels=128,
                 kernel_size=3,
                 stride=1,
                 padding=1
             ),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.Conv2d(
-                in_channels=64,
+                in_channels=128,
                 out_channels=output_channels[0],
                 kernel_size=3,
                 stride=2,
@@ -68,6 +69,7 @@ class BasicModel(torch.nn.Module):
                 padding=1
             ),
             nn.ReLU(),
+            nn.BatchNorm2d(128),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[1],
@@ -87,6 +89,7 @@ class BasicModel(torch.nn.Module):
                 padding=1
             ),
             nn.ReLU(),
+            nn.BatchNorm2d(256),
             nn.Conv2d(
                 in_channels=256,
                 out_channels=output_channels[2],
@@ -100,14 +103,15 @@ class BasicModel(torch.nn.Module):
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=output_channels[2],
-                out_channels=128,
+                out_channels=256,
                 kernel_size=3,
                 stride=1,
                 padding=1
             ),
             nn.ReLU(),
+            nn.BatchNorm2d(256),
             nn.Conv2d(
-                in_channels=128,
+                in_channels=256,
                 out_channels=output_channels[3],
                 kernel_size=3,
                 stride=2,
@@ -125,6 +129,7 @@ class BasicModel(torch.nn.Module):
                 padding=1
             ),
             nn.ReLU(),
+            nn.BatchNorm2d(128),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[4],
@@ -144,6 +149,7 @@ class BasicModel(torch.nn.Module):
                 padding=1
             ),
             nn.ReLU(),
+            nn.BatchNorm2d(128),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[5],
