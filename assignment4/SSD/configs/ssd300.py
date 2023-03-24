@@ -12,9 +12,9 @@ from .utils import get_dataset_dir, get_output_dir
 train = dict(
     batch_size=32,
     amp=True,  # Automatic mixed precision
-    log_interval=20,
+    log_interval=25,
     seed=0,
-    epochs=15,
+    epochs=20,
     _output_dir=get_output_dir(),
     imshape=(300, 300),
     image_channels=3
