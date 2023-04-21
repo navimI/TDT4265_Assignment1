@@ -32,4 +32,4 @@ SOLVER:
     LR: 1e-3
 EVAL_STEP: 1
 OUTPUT_DIR: 'outputs/rdd2022'
-DATASET_DIR: "datasets"
+DATASET_DIR: "/work/datasets"
