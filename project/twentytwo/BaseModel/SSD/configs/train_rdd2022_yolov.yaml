@@ -24,6 +24,6 @@ SOLVER:
     LR: 1e-3
     WEIGHT_DECAY: 5e-5  
 OUTPUT_DIR: 'outputs/rdd2022'
-DATASET_DIR: "/cluster/projects/itea_lille-idi-tdt4265/datasets"
+DATASET_DIR: "/cluster/projects/itea_lille-idi-tdt4265"
 EVAL_STEP: 5000
 MODEL_SAVE_STEP: 20000
