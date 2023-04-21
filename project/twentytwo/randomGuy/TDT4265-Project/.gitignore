@@ -131,3 +131,5 @@ BaseModel/SSD/datasets/*
 BaseModel/SSD/ssd/datasets/*
 BaseModel/SSD/outputs/*
 .vscode/
+project\twentytwo\randomGuy\TDT4265-Project\BaseModel\SSD\bin
+project\twentytwo\randomGuy\TDT4265-Project\general.txt

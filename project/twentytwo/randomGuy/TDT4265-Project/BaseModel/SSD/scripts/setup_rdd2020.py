@@ -21,7 +21,7 @@ if __name__ == "__main__":
     dataset_path = pathlib.Path("datasets", "rdd2022")
     if not dataset_path.parent.is_dir():
         dataset_path.parent.mkdir(exist_ok=True, parents=True)
-    work_dataset_path = pathlib.Path("/cluster/projects/itea_lille-idi-tdt4265/", "datasets", "rdd2022")
+    work_dataset_path = pathlib.Path("/cluster/projects/itea_lille-idi-tdt4265", "datasets", "rdd2022")
     if dataset_path.is_dir():
         print("Dataset already exists. If you want to download again, delete the folder", dataset_path.absolute())
         exit()
